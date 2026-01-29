@@ -8,10 +8,10 @@ from decouple import config
 
 URL = config("URL")
 BATS = {
-    "XMR": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXMR.bat",
-    "QRL": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningQRL.bat",
-    "ZEPH": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningZEPH.bat",
-    "XTM" : r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXTM.bat"
+    "XMR": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningXMR.bat",
+    "QRL": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningQRL.bat",
+    "ZEPH": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningZEPH.bat",
+    "XTM" : r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningXTM.bat"
 }
 data = []
 processo_xmrig = None
@@ -78,7 +78,7 @@ def fetch_cpu_rentability():
 
         data.append(data_temp)
 
-    time.sleep(15)
+    time.sleep(10)
     driver.quit()
 
 def parar_mineracao():
@@ -103,7 +103,6 @@ def iniciar_mineracao(moeda):
     processo_xmrig = subprocess.Popen(
         [BATS[moeda]],
         shell=True,
-        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
 
@@ -112,12 +111,26 @@ if __name__ == '__main__':
         try:
             fetch_cpu_rentability()
             df = pd.DataFrame(data)
+            ganho_aux = 0.0
+            moeda_rentavel = None
 
-            if df["Moeda"][0] in BATS.keys():
-                iniciar_mineracao(df["Moeda"][0])
+            md = df.head(5) # Pega as 5 moedas mais rentáveis
+            
+            for index, row in md.iterrows():
+                if row["Moeda"] in BATS:
+                    if row["Ganho por Dia"] > ganho_aux:
+                        ganho_aux = row["Ganho por Dia"]
+                        moeda_rentavel = row["Moeda"]
 
-            time.sleep(40)
+            if moeda_rentavel:
+                print(f"Moeda mais rentável para mineração: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
+                iniciar_mineracao(moeda_rentavel)
+                
+            else:
+                print("Nenhuma moeda rentável encontrada para mineração.")
 
+            time.sleep(2 * 60 * 60)  # Espera por 2 horas antes de verificar novamente
+            
         except KeyboardInterrupt:
             print("\nEncerrando o Script...")
             break
