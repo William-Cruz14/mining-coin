@@ -109,16 +109,16 @@ def iniciar_mineracao(moeda):
 if __name__ == '__main__':
     while True:
         try:
-            fetch_cpu_rentability()
-            df = pd.DataFrame(data)
+            fetch_cpu_rentability() # Coleta os dados de rentabilidade
+            df = pd.DataFrame(data) # Cria um DataFrame com os dados coletados
             ganho_aux = 0.0
             moeda_rentavel = None
 
             md = df.head(5) # Pega as 5 moedas mais rentáveis
             
             for index, row in md.iterrows():
-                if row["Moeda"] in BATS:
-                    if row["Ganho por Dia"] > ganho_aux:
+                if row["Moeda"] in BATS: # Verifica se há um .bat para a moeda
+                    if row["Ganho por Dia"] > ganho_aux: # Verifica se o ganho é maior que o atual
                         ganho_aux = row["Ganho por Dia"]
                         moeda_rentavel = row["Moeda"]
 
