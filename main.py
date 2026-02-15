@@ -157,7 +157,7 @@ if __name__ == '__main__':
             if moeda_rentavel:
                 print(f"Moeda mais rentável: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
                 iniciar_mineracao(moeda_rentavel)
-                print(df)
+                print(f"Minerando {moeda_rentavel}...\n")
             else:
                 print("Nenhuma moeda rentável encontrada.")
 
