@@ -12,10 +12,10 @@ from utils.email_setup import send_email
 
 URL = config("URL")
 BATS = {
-    "XMR": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXMR.bat",
-    "QRL": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningQRL.bat",
-    "ZEPH": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningZEPH.bat",
-    "XTM": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXTM.bat"
+    "XMR": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningXMR.bat",
+    "QRL": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningQRL.bat",
+    "ZEPH": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningZEPH.bat",
+    "XTM": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningXTM.bat"
 }
 POOLS = {
     "QRL": "https://qrl.herominers.com/",
