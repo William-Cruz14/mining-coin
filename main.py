@@ -12,10 +12,10 @@ from utils.email_setup import send_email
 
 URL = config("URL")
 BATS = {
-    "XMR": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningXMR.bat",
-    "QRL": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningQRL.bat",
-    "ZEPH": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningZEPH.bat",
-    "XTM": r"C:\Users\willi\Downloads\xmrig-6.25.0-windows-x64\miningXTM.bat"
+    "XMR": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningXMR.bat",
+    "QRL": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningQRL.bat",
+    "ZEPH": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningZEPH.bat",
+    "XTM": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningXTM.bat"
 }
 POOLS = {
     "QRL": "https://qrl.herominers.com/",
@@ -137,7 +137,6 @@ def iniciar_mineracao(moeda):
     processo_xmrig = subprocess.Popen(
         [BATS[moeda]],
         shell=True,
-        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
 
@@ -158,6 +157,7 @@ if __name__ == '__main__':
             if moeda_rentavel:
                 print(f"Moeda mais rentável: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
                 iniciar_mineracao(moeda_rentavel)
+                print(df)
             else:
                 print("Nenhuma moeda rentável encontrada.")
 
