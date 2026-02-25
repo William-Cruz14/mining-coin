@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import psutil
+import os
 import pandas as pd
 from decouple import config
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,16 +16,16 @@ BATS = {
     "XMR": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXMR.bat",
     "QRL": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningQRL.bat",
     "ZEPH": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningZEPH.bat",
-    "XTM": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXTM.bat"
+
 }
 POOLS = {
     "QRL": "https://qrl.herominers.com/",
     "XMR": "https://monero.herominers.com/",
-    "ZEPH": "https://zephyr.herominers.com/",
-    "XTM": "https://pool.kryptex.com/pt-br/xtm-rx"
+    "ZEPH": "https://zephyr.herominers.com/"
 }
 data = []
 processo_xmrig = None
+count = 0
 
 
 def limpar_numero(texto):
@@ -38,80 +39,86 @@ def limpar_numero(texto):
 
 
 def fetch_cpu_rentability():
-    driver = webdriver.Chrome()
-    driver.get(URL)  # Acesse a página de rentabilidade de mineração de CPU
-    wait = WebDriverWait(driver, 15)  # Espera de até 15 segundos para os elementos aparecerem
 
-    # Seleciona o botão "Adicionar processador" e clica nele
-    button = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//div/button[text()='Adicionar processador']")
+    try:
+
+        driver = webdriver.Chrome()
+        driver.get(URL)  # Acesse a página de rentabilidade de mineração de CPU
+        wait = WebDriverWait(driver, 15)  # Espera de até 15 segundos para os elementos aparecerem
+
+        # Seleciona o botão "Adicionar processador" e clica nele
+        button = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//div/button[text()='Adicionar processador']")
+            )
         )
-    )
-    button.click()
-    time.sleep(5)
-    # Preenche o formulário de busca e seleciona os processadores desejados
-    input_form = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//input[@placeholder='Buscar modelo...']")
+        button.click()
+        time.sleep(5)
+        # Preenche o formulário de busca e seleciona os processadores desejados
+        input_form = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//input[@placeholder='Buscar modelo...']")
+            )
         )
-    )
-    input_form.send_keys("Ryzen 5 5600")
-    select_amd = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//span[text()='RYZEN 5 5600']")
+        input_form.send_keys("Ryzen 5 5600")
+        select_amd = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//span[text()='RYZEN 5 5600']")
+            )
         )
-    )
-    select_amd.click()
-    time.sleep(5)
-    input_form.clear()
-    time.sleep(5)
+        select_amd.click()
+        time.sleep(5)
+        input_form.clear()
+        time.sleep(5)
 
-    input_form.send_keys("Xeon E5-2680 v4")
-    select_intel = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, "//span[text()='XEON E5-2680 V4']")
+        input_form.send_keys("Xeon E5-2680 v4")
+        select_intel = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//span[text()='XEON E5-2680 V4']")
+            )
         )
-    )
-    select_intel.click()
+        select_intel.click()
 
-    rows = wait.until(
-        EC.presence_of_all_elements_located(
-            (By.CSS_SELECTOR, "tbody tr")
+        rows = wait.until(
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "tbody tr")
+            )
         )
-    )
 
-    for row in rows:
-        cols = row.find_elements(By.TAG_NAME, "td")
+        for row in rows:
+            cols = row.find_elements(By.TAG_NAME, "td")
 
-        moeda = cols[0].find_element(By.CLASS_NAME, "text-white").text
-        algoritmo = cols[0].find_element(By.CLASS_NAME, "text-zinc-400").text
+            moeda = cols[0].find_element(By.CLASS_NAME, "text-white").text
+            algoritmo = cols[0].find_element(By.CLASS_NAME, "text-zinc-400").text
 
-        spans = cols[1].find_elements(By.TAG_NAME, "span")
-        hashrate = spans[0].text
-        hashrate_unit = spans[1].text
+            spans = cols[1].find_elements(By.TAG_NAME, "span")
+            hashrate = spans[0].text
+            hashrate_unit = spans[1].text
 
-        consumo = int(cols[2].find_element(By.TAG_NAME, "span").text)
+            consumo = int(cols[2].find_element(By.TAG_NAME, "span").text)
 
-        ganhos = cols[4].find_elements(By.TAG_NAME, "div")
+            ganhos = cols[4].find_elements(By.TAG_NAME, "div")
 
-        ganho_dia = limpar_numero(ganhos[0].text)
-        ganho_mes = limpar_numero(ganhos[1].text)
+            ganho_dia = limpar_numero(ganhos[0].text)
+            ganho_mes = limpar_numero(ganhos[1].text)
 
-        data_temp = {
-            "Moeda": moeda,
-            "Algoritmo": algoritmo,
-            "Hashrate": hashrate,
-            "Hashrate Unit": hashrate_unit,
-            "Consumo W": consumo,
-            "Ganho por Dia": ganho_dia,
-            "Ganho por Mês": ganho_mes,
-        }
+            data_temp = {
+                "Moeda": moeda,
+                "Algoritmo": algoritmo,
+                "Hashrate": hashrate,
+                "Hashrate Unit": hashrate_unit,
+                "Consumo W": consumo,
+                "Ganho por Dia": ganho_dia,
+                "Ganho por Mês": ganho_mes,
+            }
 
-        data.append(data_temp)
+            data.append(data_temp)
 
-    time.sleep(10)
-    driver.quit()
+        time.sleep(10)
+        driver.quit()
+    except Exception as e:
+        print(f"Erro ao buscar dados: {e}")
+
 
 
 def parar_mineracao():
@@ -145,23 +152,55 @@ if __name__ == '__main__':
     while True:
         try:
             fetch_cpu_rentability()
-            df = pd.DataFrame(data)
+            df_data = pd.DataFrame(data)
             ganho_aux = 0.0
             moeda_rentavel = None
+            df_file = None
+            csv_file = "rentabilidade_mineracao.csv"
 
-            for index, row in df.iterrows():
-                if row["Moeda"] in BATS:
-                    if row["Ganho por Dia"] > ganho_aux:
-                        ganho_aux = row["Ganho por Dia"]
-                        moeda_rentavel = row["Moeda"]
+            # Filtra apenas com as moedas que estão no dicionário BATS
+            data_fill = df_data[df_data["Moeda"].isin(BATS.keys())].sort_values(
+                by="Ganho por Dia",
+                ascending=False
+            )
+            moeda_max = data_fill.iloc[0]  # Seleciona a moeda mais rentável do DataFrame filtrado
 
-            if moeda_rentavel:
+
+            if os.path.exists(csv_file):
+                df_file = pd.read_csv(csv_file)
+                if not df_file.empty:
+                    for index_file, row_file in df_file.iterrows():
+
+                        if row_file["Moeda"] == moeda_max["Moeda"]:
+                            # Se a moeda atual for mais que 10% rentável que a moeda do arquivo, atualize o ganho_aux e a moeda_rentavel
+                            if moeda_max["Ganho por Dia"] > row_file["Ganho por Dia"] * 1.10:
+                                ganho_aux = moeda_max["Ganho por Dia"]
+                                moeda_rentavel = moeda_max["Moeda"]
+                                data_fill.to_csv(csv_file, index=False)
+
+            else:
+                ganho_aux = moeda_max["Ganho por Dia"]
+                moeda_rentavel = moeda_max["Moeda"]
+                data_fill.to_csv(csv_file, index=False)
+
+
+
+            if count == 0 and moeda_rentavel is not None:
                 print(f"Moeda mais rentável: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
                 iniciar_mineracao(moeda_rentavel)
-            else:
-                print("Nenhuma moeda rentável encontrada.")
+                count += 1
 
-            time.sleep(2 * 60 * 60)  # Aguarde 2 horas antes de verificar novamente
+            elif count > 0 and  moeda_rentavel:
+                file_bd = pd.read_csv(csv_file)
+                moeda_atual = file_bd.iloc[0]["Moeda"]
+                if moeda_rentavel != moeda_atual:
+                    print(f"Nova moeda rentável encontrada: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
+                    iniciar_mineracao(moeda_rentavel)
+
+            else:
+                print("A moeda rentável encontrada continua a mesma.")
+
+            time.sleep(3 * 60 * 60)  # Aguarda 3 horas antes de verificar novamente
 
         except KeyboardInterrupt:
             print("\nEncerrando o Script...")
