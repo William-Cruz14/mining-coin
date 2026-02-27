@@ -2,20 +2,22 @@ import subprocess
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-import time
-import psutil
-import os
-import pandas as pd
 from decouple import config
 from selenium.webdriver.support.wait import WebDriverWait
-
 from utils.email_setup import send_email
+import time
+import psutil
+import pandas as pd
 
 URL = config("URL")
 BATS = {
     "XMR": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningXMR.bat",
     "QRL": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningQRL.bat",
     "ZEPH": r"C:\Users\willi\Downloads\Miner\xmrig-6.25.0-windows-x64\miningZEPH.bat",
+
+    #"XMR": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningXMR.bat",
+    #"QRL": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningQRL.bat",
+    #"ZEPH": r"C:\Users\Admin\Downloads\xmrig-6.25.0-windows-x64\miningZEPH.bat",
 
 }
 POOLS = {
@@ -25,7 +27,7 @@ POOLS = {
 }
 data = []
 processo_xmrig = None
-count = 0
+first_step = True
 
 
 def limpar_numero(texto):
@@ -122,6 +124,7 @@ def fetch_cpu_rentability():
 
 
 def parar_mineracao():
+    # Encerra o processo do XMRig, se estiver rodando
     for proc in psutil.process_iter(['pid', 'name']):
         if "xmrig" in proc.info['name'].lower():
             proc.kill()
@@ -144,7 +147,6 @@ def iniciar_mineracao(moeda):
     processo_xmrig = subprocess.Popen(
         [BATS[moeda]],
         shell=True,
-        creationflags=subprocess.CREATE_NO_WINDOW
     )
 
 
@@ -155,8 +157,8 @@ if __name__ == '__main__':
             df_data = pd.DataFrame(data)
             ganho_aux = 0.0
             moeda_rentavel = None
-            df_file = None
             csv_file = "rentabilidade_mineracao.csv"
+
 
             # Filtra apenas com as moedas que estão no dicionário BATS
             data_fill = df_data[df_data["Moeda"].isin(BATS.keys())].sort_values(
@@ -165,42 +167,36 @@ if __name__ == '__main__':
             )
             moeda_max = data_fill.iloc[0]  # Seleciona a moeda mais rentável do DataFrame filtrado
 
-
-            if os.path.exists(csv_file):
-                df_file = pd.read_csv(csv_file)
-                if not df_file.empty:
-                    for index_file, row_file in df_file.iterrows():
-
-                        if row_file["Moeda"] == moeda_max["Moeda"]:
-                            # Se a moeda atual for mais que 10% rentável que a moeda do arquivo, atualize o ganho_aux e a moeda_rentavel
-                            if moeda_max["Ganho por Dia"] > row_file["Ganho por Dia"] * 1.10:
-                                ganho_aux = moeda_max["Ganho por Dia"]
-                                moeda_rentavel = moeda_max["Moeda"]
-                                data_fill.to_csv(csv_file, index=False)
-
-            else:
-                ganho_aux = moeda_max["Ganho por Dia"]
-                moeda_rentavel = moeda_max["Moeda"]
-                data_fill.to_csv(csv_file, index=False)
+            if data_fill is not None and not data_fill.empty:
+                data_fill.to_csv(csv_file, index=False)  # Salva o DataFrame filtrado em um arquivo CSV
 
 
+            moeda_rentavel = moeda_max["Moeda"]
+            ganho_aux = moeda_max["Ganho por Dia"]
 
-            if count == 0 and moeda_rentavel is not None:
+
+            if first_step and moeda_rentavel is not None:
+                first_step = False
                 print(f"Moeda mais rentável: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
                 iniciar_mineracao(moeda_rentavel)
-                count += 1
 
-            elif count > 0 and  moeda_rentavel:
-                file_bd = pd.read_csv(csv_file)
-                moeda_atual = file_bd.iloc[0]["Moeda"]
-                if moeda_rentavel != moeda_atual:
+            elif moeda_rentavel and not first_step:
+                # Lendo o arquivo CSV atualizado para comparar com a moeda mais rentável atual
+                file_updated = pd.read_csv(csv_file)
+                # Seleciona a moeda mais rentável do arquivo atualizado
+                coin_updated = file_updated.iloc[0]
+                # Verifica se a moeda mais rentável mudou e se o ganho diário é significativamente maior
+                if moeda_rentavel != coin_updated["Moeda"] and moeda_rentavel > coin_updated["Ganho por Dia"] * 1.05:
                     print(f"Nova moeda rentável encontrada: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
                     iniciar_mineracao(moeda_rentavel)
 
-            else:
-                print("A moeda rentável encontrada continua a mesma.")
+                else:
+                    print("A moeda rentável encontrada continua a mesma.")
 
-            time.sleep(3 * 60 * 60)  # Aguarda 3 horas antes de verificar novamente
+            # Limpa a lista de dados para a próxima iteração
+            data.clear()
+
+            time.sleep(2 * 60 * 60)  # Aguarda 2 horas antes de verificar novamente a rentabilidade
 
         except KeyboardInterrupt:
             print("\nEncerrando o Script...")
