@@ -155,10 +155,7 @@ if __name__ == '__main__':
         try:
             fetch_cpu_rentability()
             df_data = pd.DataFrame(data)
-            ganho_aux = 0.0
-            moeda_rentavel = None
             csv_file = "rentabilidade_mineracao.csv"
-
 
             # Filtra apenas com as moedas que estão no dicionário BATS
             data_fill = df_data[df_data["Moeda"].isin(BATS.keys())].sort_values(
@@ -171,24 +168,24 @@ if __name__ == '__main__':
                 data_fill.to_csv(csv_file, index=False)  # Salva o DataFrame filtrado em um arquivo CSV
 
 
-            moeda_rentavel = moeda_max["Moeda"]
-            ganho_aux = moeda_max["Ganho por Dia"]
+            moeda_rentavel_sigla = moeda_max["Moeda"]
+            moeda_rentavel_ganho = moeda_max["Ganho por Dia"]
 
 
-            if first_step and moeda_rentavel is not None:
+            if first_step and moeda_rentavel_sigla is not None:
                 first_step = False
-                print(f"Moeda mais rentável: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
-                iniciar_mineracao(moeda_rentavel)
+                print(f"Moeda mais rentável: {moeda_rentavel_sigla} com ganho diário de R$ {moeda_rentavel_ganho:.2f}")
+                iniciar_mineracao(moeda_rentavel_sigla)
 
-            elif moeda_rentavel and not first_step:
+            elif moeda_rentavel_sigla and not first_step:
                 # Lendo o arquivo CSV atualizado para comparar com a moeda mais rentável atual
                 file_updated = pd.read_csv(csv_file)
                 # Seleciona a moeda mais rentável do arquivo atualizado
                 coin_updated = file_updated.iloc[0]
                 # Verifica se a moeda mais rentável mudou e se o ganho diário é significativamente maior
-                if moeda_rentavel != coin_updated["Moeda"] and moeda_rentavel > coin_updated["Ganho por Dia"] * 1.05:
-                    print(f"Nova moeda rentável encontrada: {moeda_rentavel} com ganho diário de R$ {ganho_aux:.2f}")
-                    iniciar_mineracao(moeda_rentavel)
+                if moeda_rentavel_sigla != coin_updated["Moeda"] and moeda_rentavel_ganho > coin_updated["Ganho por Dia"] * 1.05:
+                    print(f"Nova moeda rentável encontrada: {moeda_rentavel_sigla} com ganho diário de R$ {moeda_rentavel_ganho:.2f}")
+                    iniciar_mineracao(moeda_rentavel_sigla)
 
                 else:
                     print("A moeda rentável encontrada continua a mesma.")
