@@ -4,11 +4,11 @@ from jinja2 import Template
 
 resend.api_key = config("RESEND_API_KEY")
 
-def send_email(moeda, pool):
+def send_email(coin, pool):
     with open("static/email_template.html", "r", encoding="utf-8") as f:
         template = Template(f.read())
 
-    msg = template.render(moeda=moeda, pool=pool)
+    msg = template.render(coin=coin, pool=pool)
 
     params : resend.Emails.SendParams ={
             "from": config("EMAIL_SERVER"),
