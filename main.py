@@ -157,44 +157,62 @@ if __name__ == '__main__':
     while True:
         try:
             data_finder = fetch_cpu_rentability() # Buscando a rentabilidade das moedas
-            df_data = pd.DataFrame(data_finder) # Criando um DataFrame a partir da lista de dados coletados
-            data_filter = pd.DataFrame() # Criando um DataFrame vazio para armazenar os dados filtrados
 
             # Filtra apenas com as moedas que estão no dicionário BATS
-            if df_data.empty:
+            if not data_finder:
                 print("Nenhuma moeda encontrada. Verifique a conexão ou a estrutura da página.")
                 time.sleep(5 * 60)  # Aguarda 5 minutos antes de tentar novamente
                 continue
-            else:
-                data_filter = df_data[df_data["Moeda"].isin(BATS.keys())].sort_values(
-                    by="Ganho por Dia",
-                    ascending=False
-                )
 
-            if FIRST_STEP and coin_max.empty:
+            data_updated = pd.DataFrame(data_finder)
+
+            if "Moeda" not in data_updated.columns or "Ganho por Dia" not in data_updated.columns:
+                print("Colunas 'Moeda' ou 'Ganho por Dia' não encontradas no DataFrame. Verifique a estrutura dos dados.")
+                time.sleep(5 * 60)  # Aguarda 5 minutos antes de tentar novamente
+                continue
+
+            data_updated_filtered = data_updated[data_updated["Moeda"].isin(BATS.keys())].sort_values(
+                by="Ganho por Dia",
+                ascending=False
+            ).reset_index(drop=True)
+
+            if data_updated_filtered.empty:
+                print("Nenhuma moeda rentável encontrada. Verifique os dados ou a estrutura da página.")
+                time.sleep(5 * 60)  # Aguarda 5 minutos antes de tentar novamente
+                continue
+
+            coin_top = data_updated_filtered.iloc[0]  # Seleciona a moeda mais rentável do DataFrame atualizado
+
+            if FIRST_STEP or coin_max.empty:
                 FIRST_STEP = False
-                coin_max = data_filter.iloc[0]  # Seleciona a moeda mais rentável do DataFrame filtrado.
+                coin_max = coin_top # Seleciona a moeda mais rentável do DataFrame filtrado.
                 coin_rentable_sigla = coin_max["Moeda"]
                 coin_rentable_win = coin_max["Ganho por Dia"]
                 print(f"Moeda mais rentável: {coin_rentable_sigla} com ganho diário de R$ {coin_rentable_win:.2f}")
                 initialize_miner(coin_rentable_sigla)
 
-            elif not FIRST_STEP and not coin_max.empty:
+            else:
 
-                if data_filter.iloc[0]["Moeda"] != coin_max["Moeda"]:
-                    if data_filter.iloc[0]["Ganho por Dia"] > coin_max["Ganho por Dia"] * 1.05:
-                        coin_max = data_filter.iloc[0]  # Seleciona a moeda mais rentável do DataFrame filtrado
+                if coin_top["Moeda"] != coin_max["Moeda"]:
+                    if coin_top["Ganho por Dia"] > (coin_max["Ganho por Dia"] * 1.05):
+                        coin_max = coin_top  # Seleciona a moeda mais rentável do DataFrame filtrado
                         coin_rentable_sigla = coin_max["Moeda"]
                         coin_rentable_win = coin_max["Ganho por Dia"]
                         print(f"Nova moeda mais rentável encontrada: {coin_rentable_sigla} com ganho diário de R$ {coin_rentable_win:.2f}")
                         initialize_miner(coin_rentable_sigla)
                 else:
+                    coin_max = coin_top
+                    coin_rentable_sigla = coin_max["Moeda"]
+                    coin_rentable_win = coin_max["Ganho por Dia"]
                     print(f"A moeda mais rentável continua sendo: {coin_rentable_sigla} com ganho diário de R$ {coin_rentable_win:.2f}")
 
-            # Limpa a lista de dados para a próxima iteração
-            data_finder.clear()
-            time.sleep(2 * 60 * 60)  # Aguarda 2 horas antes de verificar novamente a rentabilidade das moedas
+            time.sleep(2 * 60)  # Aguarda 2 horas antes de verificar novamente a rentabilidade das moedas
+
 
         except KeyboardInterrupt:
             print("\nEncerrando o Script...")
             break
+
+        except Exception as e:
+            print(f"Erro inesperado: {e}")
+            time.sleep(5 * 60)  # Aguarda 5 minutos antes de tentar novamente
