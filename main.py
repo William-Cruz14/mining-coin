@@ -153,6 +153,7 @@ def initialize_miner(coin):
 if __name__ == '__main__':
     coin_max = pd.Series() # Variável para armazenar a moeda mais rentável encontrada até o momento
     coin_rentable_sigla, coin_rentable_win = None, None # Variáveis para armazenar a sigla e o ganho diário da moeda mais rentável
+    coin_current = pd.Series() # Variável para armazenar a moeda atualmente minerada
 
     while True:
         try:
@@ -192,21 +193,25 @@ if __name__ == '__main__':
                 initialize_miner(coin_rentable_sigla)
 
             else:
+                # Verifica a moeda atualmente minerada no DataFrame atualizado
+                coin_current = data_updated_filtered[data_updated_filtered["Moeda"] == coin_rentable_sigla].iloc[0]
 
-                if coin_top["Moeda"] != coin_max["Moeda"]:
-                    if coin_top["Ganho por Dia"] > (coin_max["Ganho por Dia"] * 1.05):
+                print(coin_current)
+
+                if coin_top["Moeda"] != coin_rentable_sigla:
+                    if coin_top["Ganho por Dia"] > (coin_current["Ganho por Dia"] * 1.05):
                         coin_max = coin_top  # Seleciona a moeda mais rentável do DataFrame filtrado
                         coin_rentable_sigla = coin_max["Moeda"]
                         coin_rentable_win = coin_max["Ganho por Dia"]
                         print(f"Nova moeda mais rentável encontrada: {coin_rentable_sigla} com ganho diário de R$ {coin_rentable_win:.2f}")
                         initialize_miner(coin_rentable_sigla)
                 else:
-                    coin_max = coin_top
+                    coin_max = coin_current
                     coin_rentable_sigla = coin_max["Moeda"]
                     coin_rentable_win = coin_max["Ganho por Dia"]
                     print(f"A moeda mais rentável continua sendo: {coin_rentable_sigla} com ganho diário de R$ {coin_rentable_win:.2f}")
 
-            time.sleep(2 * 60)  # Aguarda 2 horas antes de verificar novamente a rentabilidade das moedas
+            time.sleep( 2 * 60 * 60)  # Aguarda 2 horas antes de verificar novamente a rentabilidade das moedas
 
 
         except KeyboardInterrupt:
