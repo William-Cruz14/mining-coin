@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from decouple import config
 from selenium.webdriver.support.wait import WebDriverWait
 from utils.email_setup import send_email
+from utils.discord_notification import send_discord_notification
 import time
 import psutil
 import pandas as pd
@@ -139,6 +140,7 @@ def initialize_miner(coin):
     stop_miner()
     time.sleep(10)  # Aguarde um pouco para garantir que o processo foi encerrado
 
+    send_discord_notification()
     send_email(coin=coin.upper(), pool=POOLS[coin])
     print(f"Iniciando mineração: {coin.upper()}")
 
