@@ -1,0 +1,99 @@
+[project]
+name = "mining-coin"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "William Cruz",email = "cruzwilliam14@gmail.com"}
+]
+requires-python = ">=3.14,<4.0"
+dependencies = [
+    "async-generator (==1.10)",
+    "attrs (==25.4.0)",
+    "cachetools (==7.0.1)",
+    "certifi (==2026.1.4)",
+    "cffi (==2.0.0)",
+    "charset-normalizer (==3.4.4)",
+    "cssselect (==1.4.0)",
+    "cssutils (==2.11.1)",
+    "h11 (==0.16.0)",
+    "idna (==3.11)",
+    "importlib-metadata (==8.7.1)",
+    "jinja2 (==3.1.6)",
+    "lxml (==6.0.2)",
+    "markupsafe (==3.0.3)",
+    "more-itertools (==10.8.0)",
+    "mypy-extensions (==1.1.0)",
+    "numpy (==2.4.1)",
+    "outcome (==1.3.0.post0)",
+    "packaging (==26.0)",
+    "pandas (==3.0.0)",
+    "pandas-stubs (==3.0.0.260204)",
+    "premailer (==3.10.0)",
+    "psutil (==7.2.1)",
+    "pycparser (==3.0)",
+    "pysocks (==1.7.1)",
+    "python-dateutil (==2.9.0.post0)",
+    "python-decouple (==3.8)",
+    "requests (==2.32.5)",
+    "resend (==2.21.0)",
+    "selenium (==4.40.0)",
+    "six (==1.17.0)",
+    "sniffio (==1.3.1)",
+    "sortedcontainers (==2.4.0)",
+    "soupsieve (==2.8.3)",
+    "trio (==0.32.0)",
+    "trio-typing (==0.10.0)",
+    "trio-websocket (==0.12.2)",
+    "types-certifi (==2021.10.8.3)",
+    "types-urllib3 (==1.26.25.14)",
+    "typing-extensions (==4.15.0)",
+    "tzdata (==2025.3)",
+    "urllib3 (==2.6.3)",
+    "websocket-client (==1.9.0)",
+    "wsproto (==1.3.2)",
+    "zipp (==3.23.0)",
+    "pytest-playwright (>=0.7.2,<0.8.0)",
+    "playwright (>=1.59.0,<2.0.0)",
+    "py-cpuinfo (>=9.0.0,<10.0.0)",
+    "pydantic (>=2.13.4,<3.0.0)",
+    "system-info (>=2.0.3,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.12,<0.16.0)",
+    "poethepoet (>=0.45.0,<0.46.0)"
+]
+
+[tool.ruff]
+target-version = "py314"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "RUF",
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.poe.tasks]
+install = "poetry install"
+lint = "ruff check ."
+fmt = "ruff format ."
+test = "poetry run pytest"
+ci = ["lint", "fmt", "test"]

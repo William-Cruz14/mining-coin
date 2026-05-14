@@ -178,3 +178,9 @@ pyrightconfig.json
 .vscode/
 opencode/
 .agent/
+poetry.lock
+log-script.log
+script.log
+Plain.md
+miner/
+download/

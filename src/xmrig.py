@@ -1,0 +1,154 @@
+from playwright.sync_api import sync_playwright
+from pathlib import Path
+from logger import get_logger
+from decouple import config
+import subprocess
+import psutil
+
+import zipfile
+
+logger = get_logger("xmrig-download-script")
+
+class Miner:
+    BASE_DIR = Path(__file__).parent.parent
+    VERSION = "6.26.0"
+    
+    def __init__(self, version=None):
+        
+        self.version = version or self.VERSION
+        self.file_name = f"xmrig-{self.version}-windows-x64.zip"
+        self.dir_download = self.BASE_DIR / 'download'
+        self.dir_file = self.dir_download / self.file_name
+        self.dir_miner = self.BASE_DIR / 'miner'
+
+    def _verify_download(self) -> bool:
+    
+        try:
+            while not self.dir_file.exists():
+                logger.error(f"Arquivo {self.dir_file.name} não encontrado, concluindo o download.")
+                return False
+            else:
+                logger.info(f"Arquivo {self.dir_file.name} encontrado. Download concluído.")
+                return True
+            
+        except Exception as e:
+            logger.error(f"Erro ao verificar o download: {e}")
+            raise
+    
+    def _verify_unzipped_file(self) -> bool:
+        try:
+            while not any(self.dir_miner.glob("*xmrig*")):
+                    logger.error("Arquivo não foi descompactado.")
+                    return False
+            else:
+                logger.info("Arquivo descompactado com sucesso.")
+                return True
+        
+        except Exception as e:
+            logger.error(f"Erro ao verificar o download: {e}")
+            raise
+
+    def download_xmrig(self):
+        try:
+            
+            if not self.dir_download.exists():
+                self.dir_download.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Diretório de download criado: {self.dir_download}")
+                logger.info("Baixando o arquivo do XMRig.")
+            
+            if not self._verify_download():
+                with sync_playwright() as play:
+                    browser = play.chromium.launch(headless=False, slow_mo=50)
+                    page = browser.new_page()
+                    page.goto("https://xmrig.com/download")
+                    page.get_by_role("button").filter(has_text="x64.zip").click()
+                    page.get_by_role("button").filter(has_text="link").click()
+
+                    with page.expect_download() as download_file:
+                        page.get_by_role("dialog").locator("a.btn.btn-success").click()
+                    download_xmrig = download_file.value
+
+                    download_xmrig.save_as(self.dir_file)
+                    page.wait_for_timeout(9000)
+                    browser.close()
+                logger.info("Arquivo baixado com sucesso.")
+
+
+            self.unzip_file(self.dir_file, self.dir_miner)
+
+            
+        except Exception as e:
+            logger.error(f"Erro ao baixar o XMRig: {e}")
+            raise
+
+        
+
+    def unzip_file(self, zip_path, extract_to):
+        try:
+            if self._verify_unzipped_file():
+                logger.info("Arquivo já foi descompactado.")
+                
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                for member in zip_ref.namelist():
+                    member_path = Path(extract_to) / member
+                    if not member_path.resolve().is_relative_to(Path(extract_to).resolve()):
+                        logger.error(f"Entrada inválida no zip: {member}")
+                        raise
+                zip_ref.extractall(extract_to)
+                logger.info(f"Arquivo descompactado com sucesso em: {extract_to}")
+        
+        except Exception as e:
+            logger.error(f"Erro ao descompactar o arquivo: {e}")
+            raise
+
+        
+    def stop_miner(self):
+        # Encerra o processo do XMRig, se estiver rodando
+        for proc in psutil.process_iter(['pid', 'name']):
+            if "xmrig" in proc.info['name'].lower():
+                proc.kill()
+                logger.info(f"Processo {proc.info['name']} encerrado.")
+    
+    def start_miner(self, threads: int):
+        
+        logger.info("Iniciando mineração com XMRig.")
+        try:
+            logger.info("Parando mineração caso ela já esteja rodando.")
+            self.stop_miner()
+       
+            process = subprocess.Popen(
+                [
+                    f'{self.dir_miner}/xmrig-6.26.0/xmrig.exe',
+                    '-a', 'rx/0',
+                    '-o', f'{config("POOL")}',
+                    '-u', f'{config("WALLET")}',
+                    '-p', 'x',
+                    '-k', '--tls',
+                    '--threads', f'{threads}'
+                ],
+            )
+            
+            return process
+        except Exception as e:
+            logger.error(f"Erro ao iniciar o mineração: {e}")
+            raise
+    
+    def switch_to_coin(self, threads: int):
+        try:
+            logger.info(f"Alternando a moeda.")
+
+            self.stop_miner()
+            self.start_miner(threads)
+            
+        except Exception as e:
+            logger.error(f"Erro ao alternar para a moeda: {e}")
+            raise
+    
+if __name__ == "__main__":
+    miner = Miner()
+    miner.download_xmrig()
+
+    miner.start_miner(4)
+    miner.stop_miner()
+
+    
