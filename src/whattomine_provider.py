@@ -1,21 +1,16 @@
 from decouple import config
 from http import HTTPStatus
-from src.logger import get_logger
-from src.dto_wins import WinsDTO
+from logger import get_logger
+from dto_wins import WinsDTO
 import requests
 
 logger = get_logger("whattomine-script")
-
-KEY_API = config("WHAT_TO_MINE_API")
-URL_API = config("WHAT_TO_MINE_URL")
 
 
 class WhatToMinerProvider:
     """
     Classe que representa o provider do WhatToMine
     """
-    url = URL_API
-    api_key = KEY_API
 
     def __init__(self, url, api_key):
         self.url = url
@@ -70,5 +65,8 @@ class WhatToMinerProvider:
             raise
 
 if __name__ == "__main__":
-    wtm = WhatToMinerProvider(URL_API, KEY_API)
+    url_api = config("WHAT_TO_MINE_URL")
+    api = config("WHAT_TO_MINE_API")
+
+    wtm = WhatToMinerProvider(url_api, api)
     print(wtm.get_estimate_profit(120, 2600))
