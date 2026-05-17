@@ -35,10 +35,18 @@ class WhatToMinerProvider:
         try:
             logger.info("Buscando os dados...")
             response = requests.get(
-                f"{self.url}={power}|{hashrate}k",
-                headers = {
-                    "Authorization":f"Token {self.api_key}"
-                }
+                self.url,
+                json={
+                    "cost": 0.0,
+                    "settings": [
+                        {
+                            "algorithm": "rmx",
+                            "power": power,
+                            "hashrate": hashrate,
+                        }
+                    ],
+                },
+                headers={"Authorization": f"Token {self.api_key}"},
             )
             
             if response.status_code == HTTPStatus.OK:
@@ -63,4 +71,4 @@ class WhatToMinerProvider:
 
 if __name__ == "__main__":
     wtm = WhatToMinerProvider(URL_API, KEY_API)
-    print(wtm.get_estimate_profit(120, 10))
+    print(wtm.get_estimate_profit(120, 2600))

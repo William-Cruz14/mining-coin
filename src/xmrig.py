@@ -1,7 +1,11 @@
+from coins import Coin
+
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-from logger import get_logger
 from decouple import config
+from discord_notification import send_discord_notification
+from email_setup import send_email
+from logger import get_logger
 import subprocess
 import psutil
 
@@ -87,21 +91,22 @@ class Miner:
         try:
             if self._verify_unzipped_file():
                 logger.info("Arquivo já foi descompactado.")
-                
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                for member in zip_ref.namelist():
-                    member_path = Path(extract_to) / member
-                    if not member_path.resolve().is_relative_to(Path(extract_to).resolve()):
-                        logger.error(f"Entrada inválida no zip: {member}")
-                        raise
-                zip_ref.extractall(extract_to)
-                logger.info(f"Arquivo descompactado com sucesso em: {extract_to}")
-        
+
+            if zipfile.is_zipfile(zip_path):
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    for member in zip_ref.namelist():
+                        member_path = Path(extract_to) / member
+                        if not member_path.resolve().is_relative_to(Path(extract_to).resolve()):
+                            logger.error(f"Entrada inválida no zip: {member}")
+                            raise
+                    zip_ref.extractall(extract_to)
+                    logger.info(f"Arquivo descompactado com sucesso em: {extract_to}")
+
         except Exception as e:
             logger.error(f"Erro ao descompactar o arquivo: {e}")
             raise
 
-        
+
     def stop_miner(self):
         # Encerra o processo do XMRig, se estiver rodando
         for proc in psutil.process_iter(['pid', 'name']):
@@ -109,36 +114,46 @@ class Miner:
                 proc.kill()
                 logger.info(f"Processo {proc.info['name']} encerrado.")
     
-    def start_miner(self, threads: int):
+    def start_miner(self, coin: Coin, threads: int):
         
         logger.info("Iniciando mineração com XMRig.")
         try:
             logger.info("Parando mineração caso ela já esteja rodando.")
             self.stop_miner()
+
        
             process = subprocess.Popen(
                 [
-                    f'{self.dir_miner}/xmrig-6.26.0/xmrig.exe',
-                    '-a', 'rx/0',
-                    '-o', f'{config("POOL")}',
-                    '-u', f'{config("WALLET")}',
-                    '-p', 'x',
-                    '-k', '--tls',
-                    '--threads', f'{threads}'
+                    f"{self.dir_miner}/xmrig-{self.version}/xmrig.exe",
+                    "-a",
+                    coin.algorithm,
+                    "-o",
+                    coin.pool,
+                    "-u",
+                    coin.wallet,
+                    "-p",
+                    "x",
+                    "-k",
+                    "--tls",
+                    "--threads",
+                    f"{threads}",
                 ],
             )
-            
+
+            send_email(coin.name, coin.site)
+            send_discord_notification(config("DISCORD_WEBHOOK_URL"),f"Mineração iniciada com sucesso! Moeda: {coin.name}")
+
             return process
         except Exception as e:
             logger.error(f"Erro ao iniciar o mineração: {e}")
             raise
     
-    def switch_to_coin(self, threads: int):
+    def switch_to_coin(self,coin: Coin, threads: int):
         try:
             logger.info(f"Alternando a moeda.")
 
             self.stop_miner()
-            self.start_miner(threads)
+            self.start_miner(coin, threads)
             
         except Exception as e:
             logger.error(f"Erro ao alternar para a moeda: {e}")
@@ -148,7 +163,6 @@ if __name__ == "__main__":
     miner = Miner()
     miner.download_xmrig()
 
-    miner.start_miner(4)
-    miner.stop_miner()
+    miner.start_miner(Coin.XMR, threads=4)
 
     

@@ -93,7 +93,8 @@ line-ending = "auto"
 
 [tool.poe.tasks]
 install = "poetry install"
-lint = "ruff check ."
+lint = "ruff check src/"
 fmt = "ruff format ."
+fmt-fix = "ruff format . --check"
 test = "poetry run pytest"
 ci = ["lint", "fmt", "test"]
