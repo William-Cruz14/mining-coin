@@ -8,7 +8,7 @@ def get_logger(name: str):
     
     """
     logging.basicConfig(
-        filename="../log-script.log",
+        filename="./log-script.log",
         encoding="utf-8",
         level=logging.INFO,
         format="{asctime} - {levelname} - {name} - {message}",

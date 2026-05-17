@@ -105,6 +105,7 @@ class Miner:
         
         logger.info("Iniciando mineração com XMRig.")
         try:
+            self.download_xmrig()
             logger.info("Parando mineração caso ela já esteja rodando.")
             self.stop_miner()
 
