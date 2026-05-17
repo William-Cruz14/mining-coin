@@ -26,40 +26,24 @@ class Miner:
         self.dir_miner = self.BASE_DIR / 'miner'
 
     def _verify_download(self) -> bool:
-    
-        try:
-            while not self.dir_file.exists():
-                logger.error(f"Arquivo {self.dir_file.name} não encontrado, concluindo o download.")
-                return False
-            else:
-                logger.info(f"Arquivo {self.dir_file.name} encontrado. Download concluído.")
-                return True
-            
-        except Exception as e:
-            logger.error(f"Erro ao verificar o download: {e}")
-            raise
-    
+        if not self.dir_file.exists():
+            logger.error(f"Arquivo {self.dir_file.name} não encontrado.")
+            return False
+        logger.info(f"Arquivo {self.dir_file.name} encontrado.")
+        return True
+
     def _verify_unzipped_file(self) -> bool:
-        try:
-            while not any(self.dir_miner.glob("*xmrig*")):
-                    logger.error("Arquivo não foi descompactado.")
-                    return False
-            else:
-                logger.info("Arquivo descompactado com sucesso.")
-                return True
-        
-        except Exception as e:
-            logger.error(f"Erro ao verificar o download: {e}")
-            raise
+        if not self.dir_miner.exists() or not any(self.dir_miner.glob("*xmrig*")):
+            logger.error("Arquivo não foi descompactado.")
+            return False
+        logger.info("Arquivo descompactado com sucesso.")
+        return True
 
     def download_xmrig(self):
         try:
-            
-            if not self.dir_download.exists():
-                self.dir_download.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Diretório de download criado: {self.dir_download}")
-                logger.info("Baixando o arquivo do XMRig.")
-            
+            self.dir_download.mkdir(parents=True, exist_ok=True)
+            self.dir_miner.mkdir(parents=True, exist_ok=True)
+
             if not self._verify_download():
                 with sync_playwright() as play:
                     browser = play.chromium.launch(headless=False, slow_mo=50)
@@ -89,8 +73,11 @@ class Miner:
 
     def unzip_file(self, zip_path, extract_to):
         try:
+            Path(extract_to).mkdir(parents=True, exist_ok=True)
+
             if self._verify_unzipped_file():
                 logger.info("Arquivo já foi descompactado.")
+                return
 
             if zipfile.is_zipfile(zip_path):
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
