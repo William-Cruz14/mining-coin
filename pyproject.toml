@@ -67,7 +67,8 @@ build-backend = "poetry.core.masonry.api"
 [dependency-groups]
 dev = [
     "ruff (>=0.15.12,<0.16.0)",
-    "poethepoet (>=0.45.0,<0.46.0)"
+    "poethepoet (>=0.45.0,<0.46.0)",
+    "pytest (>=9.0.3,<10.0.0)"
 ]
 
 [tool.ruff]
@@ -91,6 +92,9 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
 [tool.poe.tasks]
 install = "poetry install"
 lint = "ruff check src/"
@@ -98,3 +102,7 @@ fmt = "ruff format ."
 fmt-fix = "ruff format . --check"
 test = "poetry run pytest"
 ci = ["lint", "fmt", "test"]
+
+[tool.poe.tasks.run]
+cmd = "python src/main.py"
+env = { PYTHONPATH = "src" }
