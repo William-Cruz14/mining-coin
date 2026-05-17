@@ -13,7 +13,7 @@ def send_email(coin, pool):
         pool (str): Endereço do pool de mineração.
     """
 
-    template_path = pathlib.Path("../static/templates/email_template.html")
+    template_path = pathlib.Path(__file__).parent.parent / "static" / "templates" / "email_template.html"
 
     with open(template_path, "r", encoding="utf-8") as f:
         template = Template(f.read())

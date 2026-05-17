@@ -26,10 +26,13 @@ A cada 2 horas o script:
 - Poetry
 - XMRig (baixado automaticamente pelo script)
 
-## Instalação
+## Instalação (Requer instalação do pipx, em seguida o poetry)
 
 ```bash
 poetry install
+```
+```bash
+playwright install
 ```
 
 Configure o arquivo `.env` na raiz do projeto:
