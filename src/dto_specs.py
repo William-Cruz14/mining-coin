@@ -17,5 +17,6 @@ class BenchResume(BaseModel):
     done_ts: datetime
     version: str
     os: str
+    cpu_count: int
 
 

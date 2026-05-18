@@ -32,7 +32,9 @@ class BenchmarkProvider:
                     conditions_to_test = [
                         bench["threads_ok"] == True,
                         bench["os"] == self.machine.os_system.lower(),
-                        bench["done_ts"] is not None
+                        bench["version"] >= "6.20.0",
+                        bench["done_ts"] is not None,
+                        bench["cpu"]["packages"] == 1
                     ]
 
                     if all(conditions_to_test):
@@ -44,10 +46,11 @@ class BenchmarkProvider:
                                     threads_ok=bench['threads_ok'],
                                     done_ts=done_ts,
                                     version=bench['version'],
-                                    os=bench['os']
+                                    os=bench['os'],
+                                    cpu_count=bench['cpu']['packages']
                                 )
                             )
-            
+            print(resumes)
             return resumes
         except Exception as e:
             logger.error(f"Ocorreu um erro ao buscar os benchmarks: {e}")
@@ -72,14 +75,15 @@ class BenchmarkProvider:
 
                 if response.status_code == HTTPStatus.OK:
                     data = response.json()
-                    for mem in data["dmi"]["memory"]:
-                        if mem["size"] is not None:
-                            memory_size += mem['size'] / (1024 ** 3)
+
+                    if data["dmi"]["memory"] is not None:
+                        for mem in data["dmi"]["memory"]:
+                            if mem["size"] is not None and mem["size"] != 0:
+                                memory_size += mem["size"] / (1024 ** 3)
 
 
                     conditions_to_test = [
                         data["done_ts"] is not None,
-                        data["dmi"] is not None,
                         memory_size >= round(self.machine.memory),
                         data["cpu"]["threads"] == self.machine.cpu_threads,
                         data["cpu"]["cores"] == self.machine.cpu_cores,
