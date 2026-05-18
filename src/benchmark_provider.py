@@ -76,10 +76,10 @@ class BenchmarkProvider:
                 if response.status_code == HTTPStatus.OK:
                     data = response.json()
 
-                    if data["dmi"]["memory"] is not None:
-                        for mem in data["dmi"]["memory"]:
-                            if mem["size"] is not None and mem["size"] != 0:
-                                memory_size += mem["size"] / (1024 ** 3)
+                    dmi_memory = (data.get("dmi") or {}).get("memory") or []
+                    for mem in dmi_memory:
+                        if mem.get("size"):
+                            memory_size += mem["size"] / (1024 ** 3)
 
 
                     conditions_to_test = [
