@@ -15,6 +15,7 @@ class StrategyMiner:
         self.benchmark = benchmark
         self.data     = data
         self.miner    = miner
+        self.current_coin: Coin | None = None
 
 
     def initialize(self):
@@ -41,21 +42,13 @@ class StrategyMiner:
             )
 
             best_coin = Coin[best.tag]
-            self.miner.start_miner(coin=best_coin, threads=threads)
+            if best_coin != self.current_coin:
+                self.miner.start_miner(coin=best_coin, threads=threads)
+                self.current_coin = best_coin
+            else:
+                logger.info(f"Moeda mais rentável continua sendo {best_coin.name}, mantendo mineração.")
             return best_coin
 
         except Exception as e:
             logger.error(f"Erro ao inicializar a estratégia: {e}")
             raise
-
-
-
-
-
-
-
-
-
-
-
-

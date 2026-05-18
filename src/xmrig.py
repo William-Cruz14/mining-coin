@@ -126,6 +126,7 @@ class Miner:
                     "--threads",
                     f"{threads}",
                 ],
+                creationflags=subprocess.CREATE_NEW_CONSOLE,
             )
 
             send_email(coin.name, coin.site)
