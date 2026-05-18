@@ -50,7 +50,7 @@ class BenchmarkProvider:
                                     cpu_count=bench['cpu']['packages']
                                 )
                             )
-            print(resumes)
+
             return resumes
         except Exception as e:
             logger.error(f"Ocorreu um erro ao buscar os benchmarks: {e}")
