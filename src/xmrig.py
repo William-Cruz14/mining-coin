@@ -104,12 +104,13 @@ class Miner:
     def start_miner(self, coin: Coin, threads: int):
         
         logger.info("Iniciando mineração com XMRig.")
+        logger.info(f"Moeda: {coin.name} | Algoritmo: {coin.algorithm} | Pool: {coin.pool}")
         try:
             self.download_xmrig()
             logger.info("Parando mineração caso ela já esteja rodando.")
             self.stop_miner()
 
-       
+            logger.info("Iniciando o processo de mineração.")
             process = subprocess.Popen(
                 [
                     f"{self.dir_miner}/xmrig-{self.version}/xmrig.exe",
@@ -140,7 +141,8 @@ class Miner:
     def switch_to_coin(self,coin: Coin, threads: int):
         try:
             logger.info(f"Alternando a moeda.")
-
+            logger.info(f"Parando mineração.")
+            logger.info(f"Alternando para a moeda: {coin.name}")
             self.stop_miner()
             self.start_miner(coin, threads)
             

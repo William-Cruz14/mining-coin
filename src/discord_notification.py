@@ -1,5 +1,6 @@
 import requests
 from logger import get_logger
+from http import HTTPStatus
 
 logger = get_logger("discord-notification")
 
@@ -11,6 +12,7 @@ def send_discord_notification(webhook_url, message):
         message (str): A mensagem que se deseja enviar.
     """
     try:
+        logger.info("Enviando notificação para o Discord...")
     
         payload = {
             "content" : message,
@@ -33,6 +35,8 @@ def send_discord_notification(webhook_url, message):
 
         }
         response = requests.post(webhook_url, json=payload)
+        if response.status_code == HTTPStatus.OK:
+            logger.info("Notificação enviada com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao enviar notificação para o Discord: {e}")

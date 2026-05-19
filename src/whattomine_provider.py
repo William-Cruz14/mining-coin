@@ -28,7 +28,7 @@ class WhatToMinerProvider:
 
         results = []
         try:
-            logger.info("Buscando os dados...")
+            logger.info("Buscando os dados da API Wattomine")
             response = requests.get(
                 self.url,
                 json={

@@ -22,6 +22,7 @@ class BenchmarkMatcher:
             int: Hashrate da máquina
         """
         try:
+            logger.info("Fazendo o match dos benchmarks com a máquina")
             hashrates = sorted([spec.hashrate for spec in self.benchmark])
             limit = int(len(hashrates) * 0.1)
             hashrates_filter = hashrates[limit:]
@@ -37,6 +38,7 @@ class BenchmarkMatcher:
             power_cpu: Potência do processador
         """
         try:
+            logger.info("Buscando a potência do processador")
             power_cpu = 0
             for key,value in CPU_DATABASE.items():
                 if key in self.machine.processor:
@@ -55,6 +57,7 @@ class BenchmarkMatcher:
             int: Quantidade de threads da máquina
         """
         try:
+            logger.info("Buscando a quantidade de threads da máquina")
             threads = [spec.threads for spec in self.benchmark ]
             return mode(threads)
         except Exception as e:

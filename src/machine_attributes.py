@@ -18,7 +18,7 @@ class Machine:
             str: Sistema operacional da máquina
         """
         try:
-            logger.info("Buscando o sistema operacional.")
+            logger.info("Buscando o sistema operacional da máquina.")
             info = platform.system()
             return info
         except Exception as e:
@@ -35,7 +35,7 @@ class Machine:
         """
         
         try:
-            logger.info("Buscando o processador.")
+            logger.info("Buscando o processador da máquina.")
             cpu_info = get_cpu_info()
             return cpu_info.get('brand_raw', 'Unknown')
         except Exception as e:
@@ -45,6 +45,7 @@ class Machine:
     @property
     def cpu_cores(self):
         try:
+            logger.info("Buscando a quantidade de núcleos do processador.")
             return psutil.cpu_count(logical=False)
         except Exception as e:
             logger.error(f"Erro ao buscar a quantidade de núcleos do processador: {e}")
@@ -53,6 +54,7 @@ class Machine:
     @property
     def cpu_threads(self):
         try:
+            logger.info("Buscando a quantidade de threads do processador.")
             return psutil.cpu_count(logical=True)
         except Exception as e:
             logger.error(f"Erro ao buscar a quantidade de threads do processador: {e}")
@@ -67,6 +69,7 @@ class Machine:
         """
 
         try:
+            logger.info("Buscando a quantidade de ram da máquina.")
             memory = psutil.virtual_memory().total / (1024 ** 3)
             return memory
         except Exception as e:

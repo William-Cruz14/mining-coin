@@ -1,4 +1,5 @@
 import logging
+import sys
 
 def get_logger(name: str):
     """
@@ -7,15 +8,21 @@ def get_logger(name: str):
         name (str): O nome do logger.
     
     """
-    logging.basicConfig(
-        filename="./log-script.log",
-        encoding="utf-8",
-        level=logging.INFO,
-        format="{asctime} - {levelname} - {name} - {message}",
+    fmt = logging.Formatter(
+        "{asctime} - {levelname} - {name} - {message}",
         style="{",
         datefmt="%d/%m/%Y %H:%M"
     )
-    
+    file_handler = logging.FileHandler("./log-script.log", encoding="utf-8")
+    file_handler.setFormatter(fmt)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(fmt)
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[file_handler, console_handler]
+    )
+
     return logging.getLogger(name)
 
 if __name__ == "__main__":
