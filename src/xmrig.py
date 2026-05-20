@@ -131,7 +131,10 @@ class Miner:
             )
 
             send_email(coin.name, coin.site)
-            send_discord_notification(config("DISCORD_WEBHOOK_URL"),f"Mineração iniciada com sucesso! Moeda: {coin.name}")
+            send_discord_notification(
+                config("DISCORD_WEBHOOK_URL"),
+                f"Mineração iniciada com sucesso! Moeda: {coin.name}\n"
+                f"Consulte no site da pool: {coin.site}")
 
             return process
         except Exception as e:
