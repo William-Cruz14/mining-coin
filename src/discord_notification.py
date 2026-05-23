@@ -1,6 +1,8 @@
-import requests
-from logger import get_logger
 from http import HTTPStatus
+
+import requests
+
+from logger import get_logger
 
 logger = get_logger("discord-notification")
 

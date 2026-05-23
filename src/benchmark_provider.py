@@ -3,8 +3,8 @@ from http import HTTPStatus
 
 import requests
 
-from logger import get_logger
 from dto_specs import BenchFull, BenchResume
+from logger import get_logger
 from machine_attributes import Machine
 
 logger = get_logger("benchmark-provider-script")

@@ -1,7 +1,9 @@
-from cpuinfo import get_cpu_info
-from logger import get_logger
 import platform
+
 import psutil
+from cpuinfo import get_cpu_info
+
+from logger import get_logger
 
 logger = get_logger("benchmark-script")
 

@@ -1,7 +1,9 @@
-import resend
 import pathlib
+
+import resend
 from decouple import config
 from jinja2 import Template
+
 from logger import get_logger
 
 resend.api_key = config("RESEND_API_KEY")
@@ -20,7 +22,7 @@ def send_email(coin, pool):
         logger.info("Enviando email...")
         template_path = pathlib.Path(__file__).parent.parent / "static" / "templates" / "email_template.html"
 
-        with open(template_path, "r", encoding="utf-8") as f:
+        with open(template_path, encoding="utf-8") as f:
             template = Template(f.read())
 
         msg = template.render(coin=coin, pool=pool)

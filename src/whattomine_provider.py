@@ -1,8 +1,10 @@
-from decouple import config
 from http import HTTPStatus
-from logger import get_logger
-from dto_wins import WinsDTO
+
 import requests
+from decouple import config
+
+from dto_wins import WinsDTO
+from logger import get_logger
 
 logger = get_logger("whattomine-script")
 

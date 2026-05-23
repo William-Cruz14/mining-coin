@@ -1,15 +1,15 @@
-from coins import Coin
-
-from playwright.sync_api import sync_playwright
+import subprocess
+import zipfile
 from pathlib import Path
+
+import psutil
 from decouple import config
+from playwright.sync_api import sync_playwright
+
+from coins import Coin
 from discord_notification import send_discord_notification
 from email_setup import send_email
 from logger import get_logger
-import subprocess
-import psutil
-
-import zipfile
 
 logger = get_logger("xmrig-download-script")
 
@@ -143,8 +143,8 @@ class Miner:
     
     def switch_to_coin(self,coin: Coin, threads: int):
         try:
-            logger.info(f"Alternando a moeda.")
-            logger.info(f"Parando mineração.")
+            logger.info("Alternando a moeda.")
+            logger.info("Parando mineração.")
             logger.info(f"Alternando para a moeda: {coin.name}")
             self.stop_miner()
             self.start_miner(coin, threads)

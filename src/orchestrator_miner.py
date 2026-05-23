@@ -1,16 +1,17 @@
 from benchmark_selector import BenchmarkMatcher
-from logger import get_logger
-
 from coins import Coin
+from logger import get_logger
 from machine_attributes import Machine
 from whattomine_provider import WhatToMinerProvider
 from xmrig import Miner
 
-
 logger = get_logger("fetch_rentability-script")
 
 class StrategyMiner:
-    def __init__(self, machine: Machine, benchmark: BenchmarkMatcher, data: WhatToMinerProvider, miner: Miner):
+    def __init__(
+            self, machine: Machine, benchmark: BenchmarkMatcher,
+            data: WhatToMinerProvider, miner: Miner):
+
         self.machine  = machine
         self.benchmark = benchmark
         self.data     = data
@@ -46,7 +47,9 @@ class StrategyMiner:
                 self.miner.start_miner(coin=best_coin, threads=threads)
                 self.current_coin = best_coin
             else:
-                logger.info(f"Moeda mais rentável continua sendo {best_coin.name}, mantendo mineração.")
+                logger.info(f"Moeda mais rentável continua sendo {best_coin.name}, "
+                            f"mantendo mineração.")
+
             return best_coin
 
         except Exception as e:

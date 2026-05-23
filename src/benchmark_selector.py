@@ -1,7 +1,8 @@
-from benchmark_provider import BenchmarkProvider
-from machine_attributes import Machine
 from statistics import median, mode
+
+from benchmark_provider import BenchmarkProvider
 from logger import get_logger
+from machine_attributes import Machine
 from power_cpu import CPU_DATABASE
 
 logger = get_logger("benchmark-script")
