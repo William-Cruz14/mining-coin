@@ -56,7 +56,7 @@ class Miner:
 
             if not self._verify_download():
                 with sync_playwright() as play:
-                    browser = play.chromium.launch(headless=False, slow_mo=50)
+                    browser = play.chromium.launch(headless=True, slow_mo=50)
                     page = browser.new_page()
                     page.goto("https://xmrig.com/download")
 
