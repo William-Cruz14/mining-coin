@@ -157,8 +157,7 @@ class Miner:
                     "-k",
                     "--tls",
                     "--threads",
-                    f"{threads}",
-                    *(["--no-msr"] if IS_LINUX else []),
+                    f"{threads}"
                 ],
                 **kwargs,
             )
