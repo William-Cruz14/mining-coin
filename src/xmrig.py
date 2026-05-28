@@ -5,6 +5,7 @@ import zipfile
 from pathlib import Path
 
 import psutil
+import requests
 from decouple import config
 from playwright.sync_api import sync_playwright
 
@@ -49,31 +50,29 @@ class Miner:
         binary = "xmrig" if IS_LINUX else "xmrig.exe"
         return self.dir_miner / f"xmrig-{self.version}" / binary
 
+    def _get_download_url(self) -> str:
+        selector = "linux-static-x64.tar.gz" if IS_LINUX else "windows-x64.zip"
+        with sync_playwright() as play:
+            browser = play.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://xmrig.com/download")
+            url = page.locator(f"button.btn-download[data-url*='{selector}']").get_attribute("data-url")
+            browser.close()
+        return url
+
     def download_xmrig(self):
         try:
             self.dir_download.mkdir(parents=True, exist_ok=True)
             self.dir_miner.mkdir(parents=True, exist_ok=True)
 
             if not self._verify_download():
-                with sync_playwright() as play:
-                    browser = play.chromium.launch(headless=True, slow_mo=50)
-                    page = browser.new_page()
-                    page.goto("https://xmrig.com/download")
-
-                    if IS_LINUX:
-                        page.get_by_role("button").filter(has_text="linux-static-x64.tar.gz").click()
-                    else:
-                        page.get_by_role("button").filter(has_text="x64.zip").click()
-
-                    page.get_by_role("button").filter(has_text="link").click()
-
-                    with page.expect_download() as download_file:
-                        page.get_by_role("dialog").locator("a.btn.btn-success").click()
-                    download_xmrig = download_file.value
-
-                    download_xmrig.save_as(self.dir_file)
-                    page.wait_for_timeout(9000)
-                    browser.close()
+                url = self._get_download_url()
+                logger.info(f"Baixando XMRig de: {url}")
+                response = requests.get(url, stream=True)
+                response.raise_for_status()
+                with open(self.dir_file, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
                 logger.info("Arquivo baixado com sucesso.")
 
             self._extract_file(self.dir_file, self.dir_miner)
@@ -118,7 +117,7 @@ class Miner:
             logger.error(f"Erro ao extrair o arquivo: {e}")
             raise
 
-    # Mantido por compatibilidade, delega para _extract_file
+
     def unzip_file(self, zip_path, extract_to):
         self._extract_file(Path(zip_path), Path(extract_to))
 
