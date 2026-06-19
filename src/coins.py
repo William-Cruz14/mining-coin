@@ -28,8 +28,8 @@ class Coin(Enum):
         config("WALLET_ZEPH") + f".{get_name_worker(mac)}", "https://zephyr.herominers.com/")
 
     XDAG = (
-        "rx/0", "equal.xdagminer.com:13003",
-        config("WALLET_XDAG"), "https://equal.xdagminer.com/")
+        "rx/0", "mine.xdag1usa.com:3003",
+        config("WALLET_XDAG"), "https://xdag1usa.com/xdag/")
 
     def __init__(self, algorithm, pool, wallet, site):
         self.algorithm = algorithm
