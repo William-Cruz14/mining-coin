@@ -143,24 +143,25 @@ class Miner:
             if not IS_LINUX:
                 kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE
 
-            process = subprocess.Popen(
-                [
-                    str(self._xmrig_executable()),
-                    "-a",
-                    coin.algorithm,
-                    "-o",
-                    coin.pool,
-                    "-u",
-                    coin.wallet,
-                    "-p",
-                    "x",
-                    "-k",
-                    "--tls",
-                    "--threads",
-                    f"{threads}"
-                ],
-                **kwargs,
-            )
+            cmd = [
+                str(self._xmrig_executable()),
+                "-a",
+                coin.algorithm,
+                "-o",
+                coin.pool,
+                "-u",
+                coin.wallet,
+                "-p",
+                "x",
+                "-k",
+                "--threads",
+                f"{threads}",
+            ]
+
+            if coin.tls:
+                cmd.append("--tls")
+
+            process = subprocess.Popen(cmd, **kwargs)
 
             send_email(coin.name, coin.site)
             send_discord_notification(
