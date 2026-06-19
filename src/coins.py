@@ -17,7 +17,10 @@ class Coin(Enum):
     QRL = (
         "rx/0",
         "ca.qrl.herominers.com:1166",
-        config("WALLET_QRL") + f".{get_name_worker(mac)}", "https://qrl.herominers.com/")
+        config("WALLET_QRL") + f".{get_name_worker(mac)}", "https://qrl.herominers.com/",
+        True
+
+    )
 
     XMR = (
         "rx/0", "ca.monero.herominers.com:1111",
