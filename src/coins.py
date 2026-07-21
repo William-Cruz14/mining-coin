@@ -37,9 +37,9 @@ class Coin(Enum):
     )
 
     XDAG = (
-        "rx/0", "mine.xdag1usa.com:3003",
+        "rx/0", "equal.xdagminer.com:13003",
         config("WALLET_XDAG") + f".{get_name_worker(mac)}", "https://xdag1usa.com/xdag/",
-        False
+        True
 
     )
 
