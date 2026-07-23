@@ -1,5 +1,14 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class CoinState(BaseModel):
+    coin: str
+    balance: int
+    stale_cycles: int
+    blacklisted_until: datetime | None = None
+
 
 class BenchFull(BaseModel):
     os: str

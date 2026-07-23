@@ -17,36 +17,44 @@ class Coin(Enum):
     QRL = (
         "rx/0",
         "ca.qrl.herominers.com:1166",
-        config("WALLET_QRL") + f".{get_name_worker(mac)}", "https://qrl.herominers.com/",
-        True
-
+        config("WALLET_QRL") + f".{get_name_worker(mac)}",
+        "https://qrl.herominers.com/",
+        True,
+        "https://qrl.herominers.com/api/stats_address?address={wallet}&longpoll=false",
     )
 
     XMR = (
-        "rx/0", "ca.monero.herominers.com:1111",
-        config("WALLET_XMR") + f".{get_name_worker(mac)}", "https://monero.herominers.com/",
-        True
-
+        "rx/0",
+        "ca.monero.herominers.com:1111",
+        config("WALLET_XMR") + f".{get_name_worker(mac)}",
+        "https://monero.herominers.com/",
+        True,
+        "https://monero.herominers.com/api/stats_address?address={wallet}&longpoll=false",
     )
 
     ZEPH = (
-        "rx/0", "ca.zephyr.herominers.com:1123",
-        config("WALLET_ZEPH") + f".{get_name_worker(mac)}", "https://zephyr.herominers.com/",
-        True
-
+        "rx/0",
+        "ca.zephyr.herominers.com:1123",
+        config("WALLET_ZEPH") + f".{get_name_worker(mac)}",
+        "https://zephyr.herominers.com/",
+        True,
+        "https://zephyr.herominers.com/api/stats_address?address={wallet}&longpoll=false",
     )
 
     XDAG = (
-        "rx/0", "equal.xdagminer.com:13003",
-        config("WALLET_XDAG") + f".{get_name_worker(mac)}", "https://xdag1usa.com/xdag/",
-        True
-
+        "rx/0",
+        "equal.xdagminer.com:13003",
+        config("WALLET_XDAG") + f".{get_name_worker(mac)}",
+        "https://xdag1usa.com/xdag/",
+        True,
+        "https://explorer.xdag.io/api/block/{wallet}",
     )
 
-    def __init__(self, algorithm, pool, wallet, site, tls):
+    def __init__(self, algorithm, pool, wallet, site, tls, api_url):
         self.algorithm = algorithm
         self.pool = pool
         self.wallet = wallet
         self.site = site
         self.tls = tls
+        self.api_url = api_url
 
