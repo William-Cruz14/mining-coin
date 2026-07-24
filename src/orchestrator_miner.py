@@ -110,23 +110,24 @@ class StrategyMiner:
 
             profits = self.data.get_estimate_profit(power=power, hashrate=hashrate)
 
+            if self.current_coin:
+                self._check_wallet_progress(self.current_coin)
+
             supported = {c.name for c in Coin if not self._is_blacklisted(c)}
             if not supported:
                 logger.warning("Todas as moedas estão blacklistadas. Mantendo mineração atual.")
                 return self.current_coin
 
-            best = max(
+            ranked = sorted(
                 (p for p in profits if p.tag in supported),
-                key=lambda p: p.profit24
+                key=lambda p: p.profit24,
+                reverse=True
             )
-            best_coin = Coin[best.tag]
+            if not ranked:
+                logger.warning("Nenhuma moeda suportada encontrada nos dados do WhatToMine.")
+                return self.current_coin
 
-            if self.current_coin and not self._check_wallet_progress(self.current_coin):
-                logger.info("Moeda atual estagnada, forçando troca.")
-                best_coin = Coin[max(
-                    (p for p in profits if p.tag in {c.name for c in Coin if not self._is_blacklisted(c)}),
-                    key=lambda p: p.profit24
-                ).tag]
+            best_coin = Coin[ranked[0].tag]
 
             if best_coin != self.current_coin:
                 self.miner.start_miner(coin=best_coin, threads=threads)
