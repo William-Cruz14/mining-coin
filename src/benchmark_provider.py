@@ -26,7 +26,10 @@ class BenchmarkProvider:
 
         try:
             resumes = []
-            response = requests.get(f"https://api.xmrig.com/1/benchmarks?cpu={self.machine.processor}")
+            response = requests.get(
+                f"https://api.xmrig.com/1/benchmarks?cpu={self.machine.processor}",
+                verify=False,
+            )
             if response.status_code == HTTPStatus.OK:
                 for bench in response.json():
                     conditions_to_test = [
@@ -71,7 +74,7 @@ class BenchmarkProvider:
             for bench in bench_marks:
                 memory_size = 0
                 link = f"https://api.xmrig.com/1/benchmark/{bench.id}"
-                response = requests.get(link)
+                response = requests.get(link, verify=False)
 
                 if response.status_code == HTTPStatus.OK:
                     data = response.json()

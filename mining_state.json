@@ -1,0 +1,26 @@
+{
+  "QRL": {
+    "coin": "QRL",
+    "balance": 0,
+    "stale_cycles": 0,
+    "blacklisted_until": null
+  },
+  "XMR": {
+    "coin": "XMR",
+    "balance": 0,
+    "stale_cycles": 0,
+    "blacklisted_until": null
+  },
+  "ZEPH": {
+    "coin": "ZEPH",
+    "balance": 0,
+    "stale_cycles": 0,
+    "blacklisted_until": null
+  },
+  "XDAG": {
+    "coin": "XDAG",
+    "balance": 0,
+    "stale_cycles": 0,
+    "blacklisted_until": null
+  }
+}
