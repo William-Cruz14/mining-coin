@@ -184,3 +184,4 @@ script.log
 Plain.md
 miner/
 download/
+mining_state.json
